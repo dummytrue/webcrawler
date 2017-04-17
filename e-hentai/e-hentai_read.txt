@@ -1,0 +1,5 @@
+f=open("articles.txt","r")
+articles=[]
+for i in f.readlines():
+    articles.append(i.rstrip())
+f.close()

@@ -1,0 +1,31 @@
+#只抓圖檔位置
+
+current_page=get_web_page(input("請輸入網址"))
+if current_page:
+    articles=[]
+    current_articles, prev_url=get_articles(current_page)
+    while current_articles:
+        articles+=current_articles
+        current_page=get_web_page(prev_url)
+        current_articles,prev_url=get_articles(current_page)
+
+img_urls=[]
+while articles:
+    for article in articles:
+        print(article)
+        page=get_web_page(article)
+        if page:
+            img_url=parse(page)
+            img_urls.append(img_url)
+        articles.remove(article)
+        break
+
+f=open("img_urls.txt","w")
+for i in img_urls:
+    f.write(i+"\n")
+f.close()
+
+f=open("articles.txt","w")
+for i in articles:
+    f.write(i+"\n")
+f.close()

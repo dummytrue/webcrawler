@@ -1,0 +1,4 @@
+f=open("articles.txt","w")
+for i in articles:
+    f.write(i+"\n")
+f.close()

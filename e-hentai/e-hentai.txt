@@ -1,0 +1,77 @@
+from selenium import webdriver
+from bs4 import BeautifulSoup
+import os
+import time
+import urllib.request
+
+def get_web_page(url):
+    if url==0:
+        return 0
+    else:
+        time.sleep(0.5)
+        path="C:/Users/dummytrue/Downloads/web crawler/phantomjs-2.1.1-windows/bin/phantomjs.exe"
+        web=webdriver.PhantomJS(path)
+        web.get(url)
+        source=web.page_source
+        web.close()
+        return source
+   
+   
+def get_articles(dom):
+    all_href=[]
+    prev_url=[]
+    if dom==0:
+        return all_href,prev_url
+    else:
+        soup = BeautifulSoup(dom, 'html.parser')
+        all_pages=soup.find_all("div","gdtm")
+        for i in all_pages:
+            s=i.find("a")["href"]
+            all_href.append(s)
+   
+            paging_div=soup.find("div","gtb")
+            p1=paging_div.find("tr")
+            p2=p1.find_all("td")
+            p3=p2[-1].find("a")
+            if p3:
+                prev_url=p3["href"]
+            else:
+                prev_url=0
+        return all_href, prev_url
+   
+def parse(dom):
+    soup = BeautifulSoup(dom, 'html.parser')
+    links = soup.find_all("img")
+    img_url=links[4].get("src")
+    return img_url
+
+def save(img_urls, title):
+    if img_urls:
+        try:
+            dname = title.strip()  # 用 strip() 去除字串前後的空白
+            fname = img_urls.split('/')[-1]
+            urllib.request.urlretrieve(img_urls, os.path.join(dname, fname))
+        except Exception as e:
+            print(e)
+   
+if __name__ == '__main__':
+    current_page=get_web_page(input("請輸入網址"))
+    title=input("請輸入書名")
+    os.makedirs(title)
+    if current_page:
+        articles=[]
+        current_articles, prev_url=get_articles(current_page)
+        while current_articles:
+            articles+=current_articles
+            current_page=get_web_page(prev_url)
+            current_articles,prev_url=get_articles(current_page)
+    while articles:
+        for article in articles:
+            print("processing,",article)
+            page=get_web_page(article)
+            if page:
+                img_urls=parse(page)
+                save(img_urls,title)
+                articles.remove(article)
+                break   
+     

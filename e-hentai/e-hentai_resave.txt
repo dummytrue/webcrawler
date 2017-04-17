@@ -1,0 +1,10 @@
+title=input("請輸入書名")
+while articles:
+    for article in articles:
+        print("processing,",article)
+        page=get_web_page(article)
+        if page:
+            img_urls=parse(page)
+            save(img_urls,title)
+            articles.remove(article)
+        break
